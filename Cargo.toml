@@ -1,7 +1,9 @@
 [package]
-name = "cube_rs"
+name = "structo"
+description = "Data structures made in Rust"
 version = "0.1.0"
 edition = "2021"
+license = "Unlicense"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
