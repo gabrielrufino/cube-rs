@@ -37,6 +37,22 @@ impl<T> LinkedList<T> {
       }
     }
   }
+
+  pub fn get_value_at(&self, index: usize) -> Option<&T> {
+    let mut current = &self.head;
+    let mut count: usize = 0;
+
+    while let Some(ref node) = current {
+      if count == index {
+        return Some(&node.value)
+      }
+
+      current = &node.next;
+      count += 1;
+    }
+
+    None
+  }
 }
 
 #[cfg(test)]
@@ -71,5 +87,19 @@ mod tests {
     assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().value, 2);
     assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.as_ref().unwrap().value, 3);
     assert!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.as_ref().unwrap().next.is_none());
+  }
+
+  #[test]
+  fn test_get_value_at() {
+    let mut list = LinkedList::new();
+    list.push_back(10);
+    list.push_back(20);
+    list.push_back(30);
+
+    assert_eq!(list.get_value_at(0), Some(&10));
+    assert_eq!(list.get_value_at(1), Some(&20));
+    assert_eq!(list.get_value_at(2), Some(&30));
+
+    assert_eq!(list.get_value_at(3), None);
   }
 }
