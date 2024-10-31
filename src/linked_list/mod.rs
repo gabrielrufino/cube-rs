@@ -1,10 +1,12 @@
 type Link<T> = Option<Box<Node<T>>>;
 
+#[derive(Debug)]
 struct Node<T> {
   value: T,
   next: Link<T>
 }
 
+#[derive(Debug)]
 pub struct LinkedList<T> {
   head: Link<T>
 }
@@ -53,6 +55,46 @@ impl<T> LinkedList<T> {
 
     None
   }
+
+  pub fn remove_at(&mut self, index: usize) -> Option<T> {
+    match index {
+      0 => {
+        match self.head.take() {
+          Some(mut head) => {
+            self.head = head.next.take();
+            Some(head.value)
+          },
+          None => None,
+        }
+      },
+      _ => {
+        let mut current = &mut self.head;
+        let mut count = 0;
+
+        while let Some(ref mut node) = current {
+          match count + 1 == index {
+            true => {
+              match node.next.take() {
+                Some(mut node_to_remove) => {
+                  node.next = node_to_remove.next.take();
+                  return Some(node_to_remove.value);
+                },
+                None => {
+                  return None;
+                },
+              }
+            },
+            false => {
+              current = &mut node.next;
+              count += 1;
+            }
+          }
+        }
+
+        None
+      }
+    }
+  }
 }
 
 impl<T> Default for LinkedList<T> {
@@ -65,47 +107,123 @@ impl<T> Default for LinkedList<T> {
 mod tests {
   use super::*;
 
-  #[test]
-  fn test_push_back_on_empty_list() {
-    let mut list = LinkedList::new();
-    list.push_back(1);
-    assert_eq!(list.head.as_ref().unwrap().value, 1);
-    assert!(list.head.as_ref().unwrap().next.is_none());
+  mod push_back {
+    use super::*;
+
+    #[test]
+    fn test_push_back_on_empty_list() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+
+      assert_eq!(list.head.as_ref().unwrap().value, 1);
+      assert!(list.head.as_ref().unwrap().next.is_none());
+    }
+
+    #[test]
+    fn test_push_back_on_non_empty_list() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+      list.push_back(2);
+
+      assert_eq!(list.head.as_ref().unwrap().value, 1);
+      assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().value, 2);
+      assert!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.is_none());
+    }
+
+    #[test]
+    fn test_push_back_multiple_elements() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+      list.push_back(2);
+      list.push_back(3);
+
+      assert_eq!(list.head.as_ref().unwrap().value, 1);
+      assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().value, 2);
+      assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.as_ref().unwrap().value, 3);
+      assert!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.as_ref().unwrap().next.is_none());
+    }
   }
 
-  #[test]
-  fn test_push_back_on_non_empty_list() {
-    let mut list = LinkedList::new();
-    list.push_back(1);
-    list.push_back(2);
-    assert_eq!(list.head.as_ref().unwrap().value, 1);
-    assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().value, 2);
-    assert!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.is_none());
+  mod get_value_at {
+    use super::*;
+
+    #[test]
+    fn test_get_value_at() {
+      let mut list = LinkedList::new();
+      list.push_back(10);
+      list.push_back(20);
+      list.push_back(30);
+
+      assert_eq!(list.get_value_at(0), Some(&10));
+      assert_eq!(list.get_value_at(1), Some(&20));
+      assert_eq!(list.get_value_at(2), Some(&30));
+
+      assert_eq!(list.get_value_at(3), None);
+    }
   }
 
-  #[test]
-  fn test_push_back_multiple_elements() {
-    let mut list = LinkedList::new();
-    list.push_back(1);
-    list.push_back(2);
-    list.push_back(3);
-    assert_eq!(list.head.as_ref().unwrap().value, 1);
-    assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().value, 2);
-    assert_eq!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.as_ref().unwrap().value, 3);
-    assert!(list.head.as_ref().unwrap().next.as_ref().unwrap().next.as_ref().unwrap().next.is_none());
-  }
+  mod remove_at {
+    use super::*;
 
-  #[test]
-  fn test_get_value_at() {
-    let mut list = LinkedList::new();
-    list.push_back(10);
-    list.push_back(20);
-    list.push_back(30);
+    #[test]
+    fn test_remove_at_head() {
+      let mut list = LinkedList::new();
+      list.push_back(10);
+      list.push_back(20);
+      list.push_back(30);
 
-    assert_eq!(list.get_value_at(0), Some(&10));
-    assert_eq!(list.get_value_at(1), Some(&20));
-    assert_eq!(list.get_value_at(2), Some(&30));
+      assert_eq!(list.remove_at(0), Some(10));
+      assert_eq!(list.get_value_at(0), Some(&20));
+      assert_eq!(list.get_value_at(1), Some(&30));
+      assert_eq!(list.get_value_at(2), None);
+    }
+    
+    #[test]
+    fn test_remove_at_middle() {
+      let mut list = LinkedList::new();
+      list.push_back(10);
+      list.push_back(20);
+      list.push_back(30);
 
-    assert_eq!(list.get_value_at(3), None);
+      assert_eq!(list.remove_at(1), Some(20));
+      assert_eq!(list.get_value_at(0), Some(&10));
+      assert_eq!(list.get_value_at(1), Some(&30));
+      assert_eq!(list.get_value_at(2), None);
+    }
+    
+    #[test]
+    fn test_remove_at_end() {
+      let mut list = LinkedList::new();
+      list.push_back(10);
+      list.push_back(20);
+      list.push_back(30);
+
+      assert_eq!(list.remove_at(2), Some(30));
+      assert_eq!(list.get_value_at(0), Some(&10));
+      assert_eq!(list.get_value_at(1), Some(&20));
+      assert_eq!(list.get_value_at(2), None);
+    }
+    
+    #[test]
+    fn test_remove_invalid_index() {
+      let mut list = LinkedList::new();
+      list.push_back(10);
+      list.push_back(20);
+      list.push_back(30);
+
+      assert_eq!(list.remove_at(3), None);
+      assert_eq!(list.get_value_at(0), Some(&10));
+      assert_eq!(list.get_value_at(1), Some(&20));
+      assert_eq!(list.get_value_at(2), Some(&30));
+    }
+
+    #[test]
+    fn test_remove_head_when_it_is_the_only_element() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+
+      assert_eq!(list.remove_at(0), Some(1));
+      assert!(list.head.is_none());
+    }
   }
 }
