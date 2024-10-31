@@ -9,7 +9,8 @@ on:
       - main
 
 jobs:
-  publish:
+  rust-pkg-cd:
+    name: Rust package CD
     runs-on: ubuntu-latest
     steps:
       - uses: gabrielrufino/check-ci@main
