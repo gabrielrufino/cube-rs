@@ -16,6 +16,18 @@ impl<T> LinkedList<T> {
     LinkedList { head: None }
   }
 
+  pub fn size(&self) -> usize {
+    let mut count = 0;
+    let mut current = &self.head;
+
+    while let Some(node) = current {
+      count += 1;
+      current = &node.next;
+    }
+
+    count
+  }
+
   pub fn push_back(&mut self, value: T) {
     let new_node: Link<T> = Some(
       Box::new(Node {
@@ -106,6 +118,56 @@ impl<T> Default for LinkedList<T> {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  mod size {
+    use super::*;
+
+    #[test]
+    fn test_size_empty_list() {
+      let list: LinkedList<i32> = LinkedList::new();
+      assert_eq!(list.size(), 0);
+    }
+
+    #[test]
+    fn test_size_single_element() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+      assert_eq!(list.size(), 1);
+    }
+
+    #[test]
+    fn test_size_multiple_elements() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+      list.push_back(2);
+      list.push_back(3);
+      assert_eq!(list.size(), 3);
+    }
+
+    #[test]
+    fn test_size_after_removal() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+      list.push_back(2);
+      list.push_back(3);
+      list.remove_at(1);
+      assert_eq!(list.size(), 2);
+    }
+
+    #[test]
+    fn test_size_after_clearing() {
+      let mut list = LinkedList::new();
+      list.push_back(1);
+      list.push_back(2);
+      list.push_back(3);
+
+      list.remove_at(0);
+      list.remove_at(0);
+      list.remove_at(0);
+
+      assert_eq!(list.size(), 0);
+    }
+  }
 
   mod push_back {
     use super::*;
