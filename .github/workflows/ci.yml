@@ -1,8 +1,9 @@
 name: CI
 
 on:
-  - push
   - pull_request
+  - push
+  - workflow_dispatch
 
 jobs:
   rust-ci:
@@ -10,4 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: gabrielrufino/rust-ci@v1
+      - uses: actalog/rust-ci@v1
