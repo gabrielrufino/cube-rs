@@ -13,8 +13,8 @@ jobs:
     name: Rust package CD
     runs-on: ubuntu-latest
     steps:
-      - uses: gabrielrufino/check-ci@main
+      - uses: actalog/check-ci@main
       - uses: actions/checkout@v4
-      - uses: gabrielrufino/rust-pkg-cd@v1
+      - uses: actalog/rust-pkg-cd@v1
         with:
           cargo-registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
